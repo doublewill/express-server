@@ -23,8 +23,6 @@ app.post('/addUser', function (req, res) {
 })
 
 app.get('/:id', function (req, res) {
-	// 首先我们读取已存在的用户
-	console.log(req)
 	fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
 
 		data = JSON.parse(data);
@@ -35,12 +33,11 @@ app.get('/:id', function (req, res) {
 	});
 })
  
-app.post('/deleteUser', function (req, res) {
+app.post('/deleteUser/:id', function (req, res) {
 	fs.readFile(__dirname + "/" + "users.json", 'utf8', function (err, data) {
-		console.log(data)		 
-		data = JSON.parse(data); 
-		delete data["user2"];   
-		res.end(JSON.stringify(data)); 
+		data = JSON.parse(data);
+		let users = data.data.filter(opt=> opt.id != req.params.id) || []
+		res.end(JSON.stringify(users)); 
 	});
 })
 
