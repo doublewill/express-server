@@ -2,6 +2,39 @@ let express = require('express')
 let app = express()
 let fs = require('fs')
 
+let AipSpeechClient = require("baidu-aip-sdk").speech;
+
+// 设置APPID/AK/SK
+let APP_ID = "";
+let API_KEY = "";
+let SECRET_KEY = "";
+
+// 新建一个对象，建议只保存一个对象调用服务接口
+let client = new AipSpeechClient(APP_ID, API_KEY, SECRET_KEY);
+app.post('/voice', function (req, res) {
+	let voice = fs.readFileSync('./assets/voice/16k.pcm');
+	let voiceBuffer = new Buffer(voice);  
+	
+	client.recognize(voiceBuffer, 'pcm', 16000).then(function (result) { 	// 识别本地文件
+		// console.log('<recognize>: ' + JSON.stringify(result));		
+		if (result.err_msg == 'success' || result.err_no == 0) {
+			res.end(JSON.stringify({
+				code: 200,
+				msg: '转换成功',
+				data: result.result[0]
+			}))			
+		}
+		else res.end(JSON.stringify({
+			code: 300,
+			msg: '转换失败',
+			data: 'false'
+		}))			
+
+	}, function(err) {
+		console.log(err);
+	});
+})
+
 app.get('/listUsers', function (req, res) {
 	fs.readFile(__dirname + '/' + 'users.json', 'utf8', function (err, data) {
 		res.end(data)
