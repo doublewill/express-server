@@ -1,6 +1,7 @@
 let express = require('express')
 let app = express()
 let fs = require('fs')
+let bodyParser = require('body-parser')
 
 let AipSpeechClient = require("baidu-aip-sdk").speech;
 
@@ -9,11 +10,24 @@ let APP_ID = "";
 let API_KEY = "";
 let SECRET_KEY = "";
 
+app.use(bodyParser.urlencoded())
+app.use(bodyParser.json())
+//设置跨域访问
+app.all('*', function(req, res, next) {
+	res.header("Access-Control-Allow-Origin", "*");
+	res.header("Access-Control-Allow-Headers", "X-Requested-With");
+	res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
+	res.header("X-Powered-By",' 3.2.1');
+	res.header("Content-Type", "application/json;charset=utf-8");
+	next();
+});
+
+
 // 新建一个对象，建议只保存一个对象调用服务接口
 let client = new AipSpeechClient(APP_ID, API_KEY, SECRET_KEY);
 app.post('/voice', function (req, res) {
 	let voice = fs.readFileSync('./assets/voice/16k.pcm');
-	let voiceBuffer = new Buffer(voice);  
+	let voiceBuffer = new Buffer(voice);
 	
 	client.recognize(voiceBuffer, 'pcm', 16000).then(function (result) { 	// 识别本地文件
 		// console.log('<recognize>: ' + JSON.stringify(result));		
